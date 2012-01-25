@@ -1,0 +1,5 @@
+#!/bin/bash
+git clone -b production git@github.com:phstc/deliveria_new.git /home/ubuntu/www
+cd /home/ubuntu/www
+npm install
+sudo supervisorctl restart node
