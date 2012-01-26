@@ -1,7 +1,10 @@
-package blanq;
+package blanq.autoscaling;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import blanq.Util;
+import blanq.parameters.AutoScalingParameters;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
@@ -19,10 +22,10 @@ import com.amazonaws.services.cloudwatch.model.PutMetricAlarmRequest;
 
 public class AutoScaling {
 
-	private DeployParameters deployParameters;
+	private AutoScalingParameters autoScalingParameters;
 
-	public AutoScaling(DeployParameters deployParameters) {
-		this.deployParameters = deployParameters;
+	public AutoScaling(AutoScalingParameters autoScalingParameters) {
+		this.autoScalingParameters = autoScalingParameters;
 	}
 
 	// Dividir em métodos o código macarronico
@@ -32,7 +35,7 @@ public class AutoScaling {
 		try {
 			DeleteAlarmsRequest deleteAlarmsRequest = new DeleteAlarmsRequest();
 			Collection<String> alarmNames = Arrays
-					.asList(new String[] { this.deployParameters
+					.asList(new String[] { this.autoScalingParameters
 							.getMetricAlarmName() });
 			deleteAlarmsRequest.setAlarmNames(alarmNames);
 			cloudWatch.deleteAlarms(deleteAlarmsRequest);
@@ -42,10 +45,11 @@ public class AutoScaling {
 
 		try {
 			DeletePolicyRequest deletePolicyRequest = new DeletePolicyRequest();
-			deletePolicyRequest.setPolicyName(this.deployParameters
+			deletePolicyRequest.setPolicyName(this.autoScalingParameters
 					.getPolicyName());
-			deletePolicyRequest.setAutoScalingGroupName(this.deployParameters
-					.getAutoScalingGroupName());
+			deletePolicyRequest
+					.setAutoScalingGroupName(this.autoScalingParameters
+							.getAutoScalingGroupName());
 			autoScaling.deletePolicy(deletePolicyRequest);
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getMessage());
@@ -54,7 +58,7 @@ public class AutoScaling {
 		try {
 			DeleteAutoScalingGroupRequest deleteAutoScalingGroupRequest = new DeleteAutoScalingGroupRequest();
 			deleteAutoScalingGroupRequest
-					.setAutoScalingGroupName(this.deployParameters
+					.setAutoScalingGroupName(this.autoScalingParameters
 							.getAutoScalingGroupName());
 			deleteAutoScalingGroupRequest.setForceDelete(true);
 			autoScaling.deleteAutoScalingGroup(deleteAutoScalingGroupRequest);
@@ -64,7 +68,7 @@ public class AutoScaling {
 		try {
 			DeleteLaunchConfigurationRequest deleteLaunchConfigurationRequest = new DeleteLaunchConfigurationRequest();
 			deleteLaunchConfigurationRequest
-					.setLaunchConfigurationName(this.deployParameters
+					.setLaunchConfigurationName(this.autoScalingParameters
 							.getLaunchConfigurationName());
 			autoScaling
 					.deleteLaunchConfiguration(deleteLaunchConfigurationRequest);
@@ -77,10 +81,10 @@ public class AutoScaling {
 	public void scale() {
 
 		// http://www.caseylabs.com/how-to-setup-auto-scaling-on-amazon-ec2
-		AmazonAutoScalingClient autoScaling = this.deployParameters
+		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
 				.getAmazonAutoScalingClient();
 
-		AmazonCloudWatchClient cloudWatch = this.deployParameters
+		AmazonCloudWatchClient cloudWatch = this.autoScalingParameters
 				.getAmazonCloudWatchClient();
 
 		deletePreviousScale(autoScaling, cloudWatch);
@@ -90,60 +94,64 @@ public class AutoScaling {
 
 		// as-create-launch-config my_autoscale_config --image-id ami-XXXXXXXX --instance-type m1.small --group "My Security Group Name"
 		CreateLaunchConfigurationRequest createLaunchConfigurationRequest = new CreateLaunchConfigurationRequest();
-		createLaunchConfigurationRequest.setImageId(this.deployParameters
+		createLaunchConfigurationRequest.setImageId(this.autoScalingParameters
 				.getAmi());
-		createLaunchConfigurationRequest.setInstanceType(this.deployParameters
-				.getInstanceType());
+		createLaunchConfigurationRequest
+				.setInstanceType(this.autoScalingParameters.getInstanceType());
 		Collection<String> securityGroups = Arrays
-				.asList(new String[] { this.deployParameters.getSecurityGroup() });
+				.asList(new String[] { this.autoScalingParameters
+						.getSecurityGroup() });
 		createLaunchConfigurationRequest.setSecurityGroups(securityGroups);
-		createLaunchConfigurationRequest.setKeyName(this.deployParameters
+		createLaunchConfigurationRequest.setKeyName(this.autoScalingParameters
 				.getKeyPair());
 		createLaunchConfigurationRequest
-				.setLaunchConfigurationName(this.deployParameters
+				.setLaunchConfigurationName(this.autoScalingParameters
 						.getLaunchConfigurationName());
-		createLaunchConfigurationRequest.setUserData(this.deployParameters
+		createLaunchConfigurationRequest.setUserData(this.autoScalingParameters
 				.getUserData());
 		autoScaling.createLaunchConfiguration(createLaunchConfigurationRequest);
 
 		// as-create-auto-scaling-group my_autoscale_group --availability-zones us-east-1X --launch-configuration my_autoscale_config --min-size 1 --max-size 3 --load-balancers my_load_balancer_name --health-check-type ELB --grace-period 300
-		int autoScalingGroupMin = 2;
-		int autoScalingGroupMax = 4;
-		int autoScalingGroupCollDown = 600;
+
 		CreateAutoScalingGroupRequest createAutoScalingGroupRequest = new CreateAutoScalingGroupRequest();
 		createAutoScalingGroupRequest
-				.setAutoScalingGroupName(this.deployParameters
+				.setAutoScalingGroupName(this.autoScalingParameters
 						.getAutoScalingGroupName());
 		createAutoScalingGroupRequest
-				.setLaunchConfigurationName(this.deployParameters
+				.setLaunchConfigurationName(this.autoScalingParameters
 						.getLaunchConfigurationName());
 		Collection<String> availabilityZones = Arrays
-				.asList(new String[] { this.deployParameters
+				.asList(new String[] { this.autoScalingParameters
 						.getAvailabilityZone() });
 		createAutoScalingGroupRequest.setAvailabilityZones(availabilityZones);
-		createAutoScalingGroupRequest.setMinSize(autoScalingGroupMin);
-		createAutoScalingGroupRequest.setMaxSize(autoScalingGroupMax);
+		createAutoScalingGroupRequest.setMinSize(this.autoScalingParameters
+				.getAutoScalingGroupMin());
+		createAutoScalingGroupRequest.setMaxSize(this.autoScalingParameters
+				.getAutoScalingGroupMax());
 		createAutoScalingGroupRequest
-				.setDefaultCooldown(autoScalingGroupCollDown);
+				.setDefaultCooldown(this.autoScalingParameters
+						.getAutoScalingGroupCoolDown());
 		Collection<String> loadBalancerNames = Arrays
-				.asList(new String[] { this.deployParameters.getElbName() });
+				.asList(new String[] { this.autoScalingParameters.getElbName() });
 		createAutoScalingGroupRequest.setLoadBalancerNames(loadBalancerNames);
 		autoScaling.createAutoScalingGroup(createAutoScalingGroupRequest);
 
 		// as-put-scaling-policy ScaleUp --auto-scaling-group my_autoscale_group --adjustment=1 --type ChangeInCapacity
 		PutScalingPolicyRequest putScalingPolicyRequest = new PutScalingPolicyRequest();
-		putScalingPolicyRequest.setPolicyName(this.deployParameters
+		putScalingPolicyRequest.setPolicyName(this.autoScalingParameters
 				.getPolicyName());
 		putScalingPolicyRequest.setScalingAdjustment(1);
 		putScalingPolicyRequest.setAdjustmentType("ChangeInCapacity");
-		putScalingPolicyRequest.setCooldown(600);
-		putScalingPolicyRequest.setAutoScalingGroupName(this.deployParameters
-				.getAutoScalingGroupName());
+		putScalingPolicyRequest.setCooldown(this.autoScalingParameters
+				.getAutoScalingGroupCoolDown());
+		putScalingPolicyRequest
+				.setAutoScalingGroupName(this.autoScalingParameters
+						.getAutoScalingGroupName());
 		PutScalingPolicyResult putScalingPolicyResult = autoScaling
 				.putScalingPolicy(putScalingPolicyRequest);
 
 		PutMetricAlarmRequest putMetricAlarmRequest = new PutMetricAlarmRequest();
-		putMetricAlarmRequest.setAlarmName(this.deployParameters
+		putMetricAlarmRequest.setAlarmName(this.autoScalingParameters
 				.getMetricAlarmName());
 		Collection<String> alarmActions = Arrays
 				.asList(new String[] { putScalingPolicyResult.getPolicyARN() });
@@ -159,7 +167,7 @@ public class AutoScaling {
 				.setComparisonOperator("GreaterThanOrEqualToThreshold");
 		Dimension autoScalingGroupDimesion = new Dimension();
 		autoScalingGroupDimesion.setName("AutoScalingGroupName");
-		autoScalingGroupDimesion.setValue(this.deployParameters
+		autoScalingGroupDimesion.setValue(this.autoScalingParameters
 				.getAutoScalingGroupName());
 		Collection<Dimension> dimensions = Arrays
 				.asList(new Dimension[] { autoScalingGroupDimesion });

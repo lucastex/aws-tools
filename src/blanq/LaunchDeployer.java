@@ -1,5 +1,7 @@
 package blanq;
 
+import blanq.parameters.DeployParameters;
+
 /*
  * git push -u origin production
  */

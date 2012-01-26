@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import blanq.parameters.DeployParameters;
+
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Placement;
