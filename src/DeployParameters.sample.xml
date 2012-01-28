@@ -1,0 +1,16 @@
+<DeployParameters>
+  <!--
+  <ec2Endpoint>ec2.sa-east-1.amazonaws.com</ec2Endpoint>
+  <elbEndpoint>elasticloadbalancing.sa-east-1.amazonaws.com</elbEndpoint>
+  -->
+  <accessKey>AccessKey</accessKey>
+  <secretKey>SecretKey</secretKey>
+  <ami>ami-66538c7b</ami>
+  <elbName>Deliveria</elbName>
+  <keyPair>deliveria</keyPair>
+  <appName>Deliveria</appName>
+  <appVersion>1</appVersion>
+  <instanceType>c1.medium</instanceType>
+  <securityGroup>deliveria</securityGroup>
+  <availabilityZone>sa-east-1b</availabilityZone>
+</DeployParameters>

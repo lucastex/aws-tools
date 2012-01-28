@@ -13,7 +13,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 public abstract class AbstractParameters {
 
@@ -37,7 +36,6 @@ public abstract class AbstractParameters {
 		if (elb == null) {
 			elb = new AmazonElasticLoadBalancingClient(this.getCredentials());
 			if (elbEndpoint != null) {
-				//				elbEndpoint = "elasticloadbalancing.sa-east-1.amazonaws.com";
 				elb.setEndpoint(elbEndpoint);
 			}
 		}
@@ -72,15 +70,15 @@ public abstract class AbstractParameters {
 		}
 	}
 
-	public void save() {
-		XStream xstream = new XStream(new JettisonMappedXmlDriver());
+	public void save(Class<? extends AbstractParameters> classParameter) {
+		XStream xstream = new XStream();
 		xstream.setMode(XStream.NO_REFERENCES);
-		xstream.alias(DeployParameters.class.getSimpleName(),
-				DeployParameters.class);
-		URL thisURL = DeployParameters.class.getResource("/"
-				+ DeployParameters.class.getSimpleName() + ".json");
+		xstream.alias(classParameter.getSimpleName(), classParameter);
+		URL thisURL = classParameter.getResource("/"
+				+ classParameter.getSimpleName() + ".xml");
 		File thisFile = new File(thisURL.getFile());
 		try {
+			System.out.println(xstream.toXML(this));
 			FileUtils.writeStringToFile(thisFile, xstream.toXML(this));
 		} catch (IOException e) {
 			System.err.printf("Erro ao carregar o arquivo: %s. Erro msg: %s",
@@ -89,22 +87,14 @@ public abstract class AbstractParameters {
 		}
 	}
 
-	protected static Object load() {
-		InputStream is = DeployParameters.class.getResourceAsStream("/"
-				+ DeployParameters.class.getSimpleName() + ".json");
-		XStream xstream = new XStream(new JettisonMappedXmlDriver());
-		xstream.alias(DeployParameters.class.getSimpleName(),
-				DeployParameters.class);
+	protected static Object load(
+			Class<? extends AbstractParameters> classParameter) {
+		InputStream is = classParameter.getResourceAsStream("/"
+				+ classParameter.getSimpleName() + ".xml");
+		XStream xstream = new XStream();
+		xstream.alias(classParameter.getSimpleName(), classParameter);
 		Object fromJSON = xstream.fromXML(is);
 		return fromJSON;
-	}
-
-	public BasicAWSCredentials getBasicAWSCredentials() {
-		if (this.credentials == null) {
-			this.credentials = new BasicAWSCredentials(this.accessKey,
-					this.secretKey);
-		}
-		return this.credentials;
 	}
 
 	public String getAccessKey() {
@@ -196,6 +186,10 @@ public abstract class AbstractParameters {
 	}
 
 	public BasicAWSCredentials getCredentials() {
+		if (credentials == null) {
+			credentials = new BasicAWSCredentials(this.accessKey,
+					this.secretKey);
+		}
 		return credentials;
 	}
 

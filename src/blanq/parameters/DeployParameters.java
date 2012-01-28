@@ -10,12 +10,30 @@ public class DeployParameters extends AbstractParameters {
 	private AmazonEC2Client ec2;
 	private String ec2Endpoint;
 
+	public static void main(String[] args) {
+		DeployParameters auto = new DeployParameters();
+
+		auto.setAccessKey("AccessKey");
+		auto.setSecretKey("SecretKey");
+		auto.setKeyPair("deliveria");
+		auto.setAppName("Deliveria");
+		auto.setAppVersion("1");
+		auto.setSecurityGroup("deliveria");
+		auto.setInstanceType("c1.medium");
+		auto.setElbName("Deliveria");
+		auto.setAvailabilityZone("sa-east-1b");
+		auto.setAmi("ami-66538c7b");
+		auto.setEc2Endpoint("ec2.sa-east-1.amazonaws.com");
+
+		auto.save(DeployParameters.class);
+	}
+
 	private DeployParameters() {
 	}
 
 	public AmazonEC2Client getAmazonEC2Client() {
 		if (ec2 == null) {
-			ec2 = new AmazonEC2Client(this.getBasicAWSCredentials());
+			ec2 = new AmazonEC2Client(this.getCredentials());
 			if (ec2Endpoint != null) {
 				if (ec2Endpoint != null) {
 					ec2Endpoint = "ec2.sa-east-1.amazonaws.com";
@@ -28,7 +46,7 @@ public class DeployParameters extends AbstractParameters {
 
 	public static DeployParameters getInstance() {
 		if (instance == null) {
-			instance = (DeployParameters) load();
+			instance = (DeployParameters) load(DeployParameters.class);
 			instance.validateParameters();
 		}
 		return instance;
@@ -87,6 +105,14 @@ public class DeployParameters extends AbstractParameters {
 					.println("Você deve definir a zona onde as intâncias serão criadas na variável de ambiente \"aws.zone\".");
 			System.exit(1);
 		}
+	}
+
+	public String getEc2Endpoint() {
+		return ec2Endpoint;
+	}
+
+	public void setEc2Endpoint(String ec2Endpoint) {
+		this.ec2Endpoint = ec2Endpoint;
 	}
 
 }

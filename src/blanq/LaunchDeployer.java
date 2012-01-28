@@ -12,8 +12,6 @@ public class LaunchDeployer {
 		DeployParameters deployParameters = DeployParameters.getInstance();
 		Deployer deployer = new Deployer(deployParameters);
 		deployer.deploy();
-		//		AutoScaling autoScaling = new AutoScaling(deployParameters);
-		//		autoScaling.scale();
 	}
 
 }

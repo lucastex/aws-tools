@@ -1,0 +1,33 @@
+<AutoScalingParameters>
+  <policyName>ScaleUp</policyName>
+  <autoScalingGroupName>AppServerGroup</autoScalingGroupName>
+  <launchConfigurationName>LaunchConfigurationName</launchConfigurationName>
+  <!--
+  <autoScalingEndpoint>autoscaling.sa-east-1.amazonaws.com</autoScalingEndpoint>
+  <cloudWatchEndpoint>monitoring.sa-east-1.amazonaws.com</cloudWatchEndpoint>
+  <elbEndpoint>elasticloadbalancing.sa-east-1.amazonaws.com</elbEndpoint>
+  -->
+  <autoScalingGroupMin>2</autoScalingGroupMin>
+  <autoScalingGroupMax>4</autoScalingGroupMax>
+  <autoScalingGroupCoolDown>600</autoScalingGroupCoolDown>
+  <policyScalingAdjustment>1</policyScalingAdjustment>
+  <policyAdjustmentType>ChangeInCapacity</policyAdjustmentType>
+  <alarmMetricName>ELBLowLatency</alarmMetricName>
+  <alarmNamespace>AWS/ELB</alarmNamespace>
+  <alarmStatistic>Average</alarmStatistic>
+  <alarmPeriod>300</alarmPeriod>
+  <alarmEvaluationPeriods>1</alarmEvaluationPeriods>
+  <alarmThreshold>4.0</alarmThreshold>
+  <alarmComparisonOperator>GreaterThanOrEqualToThreshold</alarmComparisonOperator>
+  <alarmGroupDimesionName>AutoScalingGroupName</alarmGroupDimesionName>
+  <accessKey>AccessKey</accessKey>
+  <secretKey>SecretKey</secretKey>
+  <elbName>ElbName</elbName>
+  <keyPair>KeyPair</keyPair>
+  <appName>AppName</appName>
+  <ami>ami-11538d7e</ami>
+  <appVersion>1</appVersion>
+  <instanceType>c1.medium</instanceType>
+  <securityGroup>SecurityGroup</securityGroup>
+  <availabilityZone>sa-east-1b</availabilityZone>
+</AutoScalingParameters>
