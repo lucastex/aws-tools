@@ -10,27 +10,6 @@ public class DeployParameters extends AbstractParameters {
 	private AmazonEC2Client ec2;
 	private String ec2Endpoint;
 
-	public static void main(String[] args) {
-		DeployParameters auto = new DeployParameters();
-
-		auto.setAccessKey("AccessKey");
-		auto.setSecretKey("SecretKey");
-		auto.setKeyPair("deliveria");
-		auto.setAppName("Deliveria");
-		auto.setAppVersion("1");
-		auto.setSecurityGroup("deliveria");
-		auto.setInstanceType("c1.medium");
-		auto.setElbName("Deliveria");
-		auto.setAvailabilityZone("sa-east-1b");
-		auto.setAmi("ami-66538c7b");
-		auto.setEc2Endpoint("ec2.sa-east-1.amazonaws.com");
-
-		auto.save(DeployParameters.class);
-	}
-
-	private DeployParameters() {
-	}
-
 	public AmazonEC2Client getAmazonEC2Client() {
 		if (ec2 == null) {
 			ec2 = new AmazonEC2Client(this.getCredentials());
@@ -54,13 +33,12 @@ public class DeployParameters extends AbstractParameters {
 
 	protected void validateParameters() {
 		super.validateParameters();
-		//validando variaveis
-		if (!StringUtils.isNotBlank(this.getAmi())) {
+		if (StringUtils.isBlank(this.getAmi())) {
 			System.err
 					.println("Você deve indicar a imagem das instâncias (ami-id) na variável de ambiente \"aws.ami\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getQty())) {
+		if (StringUtils.isBlank(this.getQty())) {
 			System.err
 					.println("Você deve indicar a quantidade de instâncias para iniciar na variável de ambiente \"aws.qty\".");
 			System.exit(1);
@@ -70,37 +48,37 @@ public class DeployParameters extends AbstractParameters {
 					.println("A quantidade de instâncias deve ser um valor numérico.");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getElbName())) {
+		if (StringUtils.isBlank(this.getElbName())) {
 			System.err
 					.println("Você deve indicar em qual loadbalancer as instâncias serão plugadas na variável de ambiente \"aws.elb\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getKeyPair())) {
+		if (StringUtils.isBlank(this.getKeyPair())) {
 			System.err
 					.println("Você deve indicar qual o keypair que será atribuído as instâncias na variável de ambiente \"aws.keypair\"");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getAppName())) {
+		if (StringUtils.isBlank(this.getAppName())) {
 			System.err
 					.println("Você deve definir o nome da aplicação que está publicando na variável de ambiente \"aws.appname\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getAppVersion())) {
+		if (StringUtils.isBlank(this.getAppVersion())) {
 			System.err
 					.println("Você deve definir o número da versão da aplicação que está publicando na variável de ambiente \"aws.appversion\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getInstanceType())) {
+		if (StringUtils.isBlank(this.getInstanceType())) {
 			System.err
 					.println("Você deve definir o tipo de instância na variável de ambiente \"aws.type\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getSecurityGroup())) {
+		if (StringUtils.isBlank(this.getSecurityGroup())) {
 			System.err
 					.println("Você deve definir qual o security group das instâncias na variável de ambiente \"aws.group\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getAvailabilityZone())) {
+		if (StringUtils.isBlank(this.getAvailabilityZone())) {
 			System.err
 					.println("Você deve definir a zona onde as intâncias serão criadas na variável de ambiente \"aws.zone\".");
 			System.exit(1);

@@ -57,13 +57,12 @@ public abstract class AbstractParameters {
 	}
 
 	protected void validateParameters() {
-		//validando variaveis
-		if (!StringUtils.isNotBlank(this.getAccessKey())) {
+		if (StringUtils.isBlank(this.getAccessKey())) {
 			System.err
 					.println("Você deve fornecer a sua accessKey de acesso a AWS na variável de ambiente \"aws.accessKey\".");
 			System.exit(1);
 		}
-		if (!StringUtils.isNotBlank(this.getSecretKey())) {
+		if (StringUtils.isBlank(this.getSecretKey())) {
 			System.err
 					.println("Você deve fornecer a sua secretKey de acesso a AWS na variável de ambiente \"aws.secretKey\".");
 			System.exit(1);

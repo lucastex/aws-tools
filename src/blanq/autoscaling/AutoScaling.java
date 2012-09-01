@@ -27,10 +27,6 @@ public class AutoScaling {
 		this.autoScalingParameters = autoScalingParameters;
 	}
 
-	public static void main(String[] args) {
-
-	}
-
 	public void delete() {
 		deleteAlarm();
 		deletePolicy();
@@ -39,12 +35,12 @@ public class AutoScaling {
 	}
 
 	private void deleteAlarm() {
-		AmazonCloudWatchClient cloudWatch = this.autoScalingParameters
+		AmazonCloudWatchClient cloudWatch = autoScalingParameters
 				.getAmazonCloudWatchClient();
 		try {
 			DeleteAlarmsRequest deleteAlarmsRequest = new DeleteAlarmsRequest();
 			Collection<String> alarmNames = Arrays
-					.asList(new String[] { this.autoScalingParameters
+					.asList(new String[] { autoScalingParameters
 							.getAlarmMetricName() });
 			deleteAlarmsRequest.setAlarmNames(alarmNames);
 			cloudWatch.deleteAlarms(deleteAlarmsRequest);
@@ -54,15 +50,14 @@ public class AutoScaling {
 	}
 
 	private void deletePolicy() {
-		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
+		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 		try {
 			DeletePolicyRequest deletePolicyRequest = new DeletePolicyRequest();
-			deletePolicyRequest.setPolicyName(this.autoScalingParameters
+			deletePolicyRequest.setPolicyName(autoScalingParameters
 					.getPolicyName());
-			deletePolicyRequest
-					.setAutoScalingGroupName(this.autoScalingParameters
-							.getAutoScalingGroupName());
+			deletePolicyRequest.setAutoScalingGroupName(autoScalingParameters
+					.getAutoScalingGroupName());
 			autoScaling.deletePolicy(deletePolicyRequest);
 		} catch (AmazonServiceException e) {
 			System.err.println(e.getMessage());
@@ -70,12 +65,12 @@ public class AutoScaling {
 	}
 
 	private void deleteAutoScalingGroup() {
-		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
+		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 		try {
 			DeleteAutoScalingGroupRequest deleteAutoScalingGroupRequest = new DeleteAutoScalingGroupRequest();
 			deleteAutoScalingGroupRequest
-					.setAutoScalingGroupName(this.autoScalingParameters
+					.setAutoScalingGroupName(autoScalingParameters
 							.getAutoScalingGroupName());
 			deleteAutoScalingGroupRequest.setForceDelete(true);
 			autoScaling.deleteAutoScalingGroup(deleteAutoScalingGroupRequest);
@@ -85,12 +80,12 @@ public class AutoScaling {
 	}
 
 	private void deleteLaunchConfiguration() {
-		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
+		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 		try {
 			DeleteLaunchConfigurationRequest deleteLaunchConfigurationRequest = new DeleteLaunchConfigurationRequest();
 			deleteLaunchConfigurationRequest
-					.setLaunchConfigurationName(this.autoScalingParameters
+					.setLaunchConfigurationName(autoScalingParameters
 							.getLaunchConfigurationName());
 			autoScaling
 					.deleteLaunchConfiguration(deleteLaunchConfigurationRequest);
@@ -100,113 +95,163 @@ public class AutoScaling {
 	}
 
 	private void createLaunchConfiguration() {
-		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
+		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
+
 		// as-create-launch-config my_autoscale_config --image-id ami-XXXXXXXX --instance-type m1.small --group "My Security Group Name"
-		CreateLaunchConfigurationRequest createLaunchConfigurationRequest = new CreateLaunchConfigurationRequest();
-		createLaunchConfigurationRequest.setImageId(this.autoScalingParameters
-				.getAmi());
-		createLaunchConfigurationRequest
-				.setInstanceType(this.autoScalingParameters.getInstanceType());
-		Collection<String> securityGroups = Arrays
-				.asList(new String[] { this.autoScalingParameters
-						.getSecurityGroup() });
-		createLaunchConfigurationRequest.setSecurityGroups(securityGroups);
-		createLaunchConfigurationRequest.setKeyName(this.autoScalingParameters
-				.getKeyPair());
-		createLaunchConfigurationRequest
-				.setLaunchConfigurationName(this.autoScalingParameters
+		CreateLaunchConfigurationRequest launchConfigurationRequest = new CreateLaunchConfigurationRequest();
+
+		// configuration name
+		launchConfigurationRequest
+				.setLaunchConfigurationName(autoScalingParameters
 						.getLaunchConfigurationName());
-		createLaunchConfigurationRequest.setUserData(this.autoScalingParameters
+
+		// image to be initialized
+		launchConfigurationRequest.setImageId(autoScalingParameters.getAmi());
+
+		// instance-type (available types micro, small, medium, large, extra large)
+		launchConfigurationRequest.setInstanceType(autoScalingParameters
+				.getInstanceType());
+
+		// security group (http:80, https:443, ssh:22)
+		Collection<String> securityGroups = Arrays
+				.asList(new String[] { autoScalingParameters.getSecurityGroup() });
+		launchConfigurationRequest.setSecurityGroups(securityGroups);
+
+		// keyParName
+		launchConfigurationRequest.setKeyName(autoScalingParameters
+				.getKeyPair());
+
+		// initialization script 
+		launchConfigurationRequest.setUserData(autoScalingParameters
 				.getUserData());
-		autoScaling.createLaunchConfiguration(createLaunchConfigurationRequest);
+
+		autoScaling.createLaunchConfiguration(launchConfigurationRequest);
 	}
 
 	private void createAutoScalingGroup() {
-		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
+		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
+
 		// as-create-auto-scaling-group my_autoscale_group --availability-zones us-east-1X --launch-configuration my_autoscale_config --min-size 1 --max-size 3 --load-balancers my_load_balancer_name --health-check-type ELB --grace-period 300
-		CreateAutoScalingGroupRequest createAutoScalingGroupRequest = new CreateAutoScalingGroupRequest();
-		createAutoScalingGroupRequest
-				.setAutoScalingGroupName(this.autoScalingParameters
-						.getAutoScalingGroupName());
-		createAutoScalingGroupRequest
-				.setLaunchConfigurationName(this.autoScalingParameters
+		CreateAutoScalingGroupRequest autoScalingGroupRequest = new CreateAutoScalingGroupRequest();
+
+		// group name
+		autoScalingGroupRequest.setAutoScalingGroupName(autoScalingParameters
+				.getAutoScalingGroupName());
+		// launch config name
+		autoScalingGroupRequest
+				.setLaunchConfigurationName(autoScalingParameters
 						.getLaunchConfigurationName());
+
+		// zone to be deployed
 		Collection<String> availabilityZones = Arrays
-				.asList(new String[] { this.autoScalingParameters
+				.asList(new String[] { autoScalingParameters
 						.getAvailabilityZone() });
-		createAutoScalingGroupRequest.setAvailabilityZones(availabilityZones);
-		createAutoScalingGroupRequest.setMinSize(this.autoScalingParameters
+		autoScalingGroupRequest.setAvailabilityZones(availabilityZones);
+
+		// minimum number of running instances
+		autoScalingGroupRequest.setMinSize(autoScalingParameters
 				.getAutoScalingGroupMin());
-		createAutoScalingGroupRequest.setMaxSize(this.autoScalingParameters
+
+		// maximum number of running instances
+		autoScalingGroupRequest.setMaxSize(autoScalingParameters
 				.getAutoScalingGroupMax());
-		createAutoScalingGroupRequest
-				.setDefaultCooldown(this.autoScalingParameters
-						.getAutoScalingGroupCoolDown());
+
+		// amount of time, in seconds, after a scaling activity completes before any further trigger-related scaling activities can start
+		autoScalingGroupRequest.setDefaultCooldown(autoScalingParameters
+				.getAutoScalingGroupCoolDown());
+
+		// loadbalance to be used
 		Collection<String> loadBalancerNames = Arrays
-				.asList(new String[] { this.autoScalingParameters.getElbName() });
-		createAutoScalingGroupRequest.setLoadBalancerNames(loadBalancerNames);
-		autoScaling.createAutoScalingGroup(createAutoScalingGroupRequest);
+				.asList(new String[] { autoScalingParameters.getElbName() });
+		autoScalingGroupRequest.setLoadBalancerNames(loadBalancerNames);
+
+		autoScaling.createAutoScalingGroup(autoScalingGroupRequest);
 	}
 
 	private PutScalingPolicyResult putScalingPolicy() {
-		AmazonAutoScalingClient autoScaling = this.autoScalingParameters
+		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
+
 		// as-put-scaling-policy ScaleUp --auto-scaling-group my_autoscale_group --adjustment=1 --type ChangeInCapacity
 		PutScalingPolicyRequest putScalingPolicyRequest = new PutScalingPolicyRequest();
-		putScalingPolicyRequest.setPolicyName(this.autoScalingParameters
+
+		putScalingPolicyRequest.setPolicyName(autoScalingParameters
 				.getPolicyName());
-		putScalingPolicyRequest.setScalingAdjustment(this.autoScalingParameters
+
+		putScalingPolicyRequest.setScalingAdjustment(autoScalingParameters
 				.getPolicyScalingAdjustment());
-		putScalingPolicyRequest.setAdjustmentType(this.autoScalingParameters
+
+		putScalingPolicyRequest.setAdjustmentType(autoScalingParameters
 				.getPolicyAdjustmentType());
-		putScalingPolicyRequest.setCooldown(this.autoScalingParameters
+
+		putScalingPolicyRequest.setCooldown(autoScalingParameters
 				.getAutoScalingGroupCoolDown());
-		putScalingPolicyRequest
-				.setAutoScalingGroupName(this.autoScalingParameters
-						.getAutoScalingGroupName());
+
+		putScalingPolicyRequest.setAutoScalingGroupName(autoScalingParameters
+				.getAutoScalingGroupName());
+
 		return autoScaling.putScalingPolicy(putScalingPolicyRequest);
 	}
 
 	private void putAlarmRequest(PutScalingPolicyResult putScalingPolicyResult) {
-		AmazonCloudWatchClient cloudWatch = this.autoScalingParameters
+		AmazonCloudWatchClient cloudWatch = autoScalingParameters
 				.getAmazonCloudWatchClient();
 
 		PutMetricAlarmRequest putMetricAlarmRequest = new PutMetricAlarmRequest();
-		putMetricAlarmRequest.setAlarmName(this.autoScalingParameters
+
+		putMetricAlarmRequest.setAlarmName(autoScalingParameters
 				.getAlarmMetricName());
+
+		putMetricAlarmRequest.setComparisonOperator(autoScalingParameters
+				.getAlarmComparisonOperator());
+
+		putMetricAlarmRequest.setEvaluationPeriods(autoScalingParameters
+				.getAlarmEvaluationPeriods());
+
+		putMetricAlarmRequest.setMetricName(autoScalingParameters
+				.getAlarmMetricName());
+
+		putMetricAlarmRequest.setNamespace(autoScalingParameters
+				.getAlarmNamespace());
+
+		putMetricAlarmRequest.setPeriod(autoScalingParameters.getAlarmPeriod());
+
+		putMetricAlarmRequest.setStatistic(autoScalingParameters
+				.getAlarmStatistic());
+
+		putMetricAlarmRequest.setThreshold(autoScalingParameters
+				.getAlarmThreshold());
+
 		Collection<String> alarmActions = Arrays
 				.asList(new String[] { putScalingPolicyResult.getPolicyARN() });
+
 		putMetricAlarmRequest.setAlarmActions(alarmActions);
-		putMetricAlarmRequest.setMetricName(this.autoScalingParameters
-				.getAlarmMetricName());
-		putMetricAlarmRequest.setNamespace(this.autoScalingParameters
-				.getAlarmNamespace());
-		putMetricAlarmRequest.setStatistic(this.autoScalingParameters
-				.getAlarmStatistic());
-		putMetricAlarmRequest.setPeriod(this.autoScalingParameters
-				.getAlarmPeriod()); 
-		putMetricAlarmRequest.setEvaluationPeriods(this.autoScalingParameters
-				.getAlarmEvaluationPeriods());
-		putMetricAlarmRequest.setThreshold(this.autoScalingParameters
-				.getAlarmThreshold());
-		/* http://docs.amazonwebservices.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/cloudwatch/model/PutMetricAlarmRequest.html#getComparisonOperator() */
-		putMetricAlarmRequest.setComparisonOperator(this.autoScalingParameters
-				.getAlarmComparisonOperator());
+
 		Dimension autoScalingGroupDimesion = new Dimension();
-		autoScalingGroupDimesion.setName(this.autoScalingParameters
+		autoScalingGroupDimesion.setName(autoScalingParameters
 				.getAlarmGroupDimesionName());
-		autoScalingGroupDimesion.setValue(this.autoScalingParameters
+
+		autoScalingGroupDimesion.setValue(autoScalingParameters
 				.getAutoScalingGroupName());
+
 		Collection<Dimension> dimensions = Arrays
 				.asList(new Dimension[] { autoScalingGroupDimesion });
+
 		putMetricAlarmRequest.setDimensions(dimensions);
 
+		/* mon-put-metric-alarm AlarmName  --comparison-operator  value  --evaluation-periods  value
+		--metric-name  value  --namespace  value  --period  value  --statistic 
+		value  --threshold  value [--actions-enabled  value ] [--alarm-actions 
+		value[,value...] ] [--alarm-description  value ] [--dimensions 
+		"key1=value1,key2=value2..." ] [--ok-actions  value[,value...] ] [--unit 
+		value ] [--insufficient-data-actions  value[,value...] ]  [General Options]
+		*/
+		
 		cloudWatch.putMetricAlarm(putMetricAlarmRequest);
 	}
 
-	// Dividir em métodos o código macarronico
 	public void scale() {
 		createLaunchConfiguration();
 		createAutoScalingGroup();

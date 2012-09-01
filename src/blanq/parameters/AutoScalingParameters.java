@@ -1,7 +1,5 @@
 package blanq.parameters;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 
@@ -40,27 +38,8 @@ public class AutoScalingParameters extends AbstractParameters {
 	}
 
 	protected void validateParameters() {
-		//validando variaveis
-		if (!StringUtils.isNotBlank(this.getPolicyName())) {
-			System.err
-					.println("Você deve fornecer a sua getPolicyName de acesso a AWS na variável de ambiente \"aws.accessKey\".");
-			System.exit(1);
-		}
-		if (!StringUtils.isNotBlank(this.getAutoScalingGroupName())) {
-			System.err
-					.println("Você deve fornecer a sua getAutoScalingGroupName de acesso a AWS na variável de ambiente \"aws.secretKey\".");
-			System.exit(1);
-		}
-		if (!StringUtils.isNotBlank(this.getLaunchConfigurationName())) {
-			System.err
-					.println("Você deve fornecer a sua getLaunchConfigurationName de acesso a AWS na variável de ambiente \"aws.secretKey\".");
-			System.exit(1);
-		}
-		if (!StringUtils.isNotBlank(this.getAlarmMetricName())) {
-			System.err
-					.println("Você deve fornecer a sua getMetricAlarmName de acesso a AWS na variável de ambiente \"aws.secretKey\".");
-			System.exit(1);
-		}
+		super.validateParameters();
+		//TODO Should validate other fields such as AMI, Zones, Security Groups etc
 	}
 
 	public AmazonAutoScalingClient getAmazonAutoScalingClient() {
