@@ -4,43 +4,47 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 public abstract class AbstractParameters {
 
+	@NotBlank
 	private String accessKey;
+	@NotBlank
 	private String secretKey;
+	@NotBlank
 	private String ami;
-	private String qty;
+	@NotBlank
 	private String elbName;
+	@NotBlank
 	private String keyPair;
+	@NotBlank
 	private String appName;
+	@NotBlank
 	private String appVersion;
+	@NotBlank
 	private String instanceType;
+	@NotBlank
 	private String securityGroup;
+	@NotBlank
 	private String availabilityZone;
+
 	@XStreamOmitField
 	private BasicAWSCredentials credentials;
-	private AmazonElasticLoadBalancingClient elb;
-	private String elbEndpoint;
-
-	public AmazonElasticLoadBalancingClient getAmazonElasticLoadBalancingClient() {
-		if (elb == null) {
-			elb = new AmazonElasticLoadBalancingClient(this.getCredentials());
-			if (elbEndpoint != null) {
-				elb.setEndpoint(elbEndpoint);
-			}
-		}
-		return elb;
-	}
 
 	public String getUserData() {
 		URL thisURL = AbstractParameters.class.getResource("/user-data.txt");
@@ -49,22 +53,27 @@ public abstract class AbstractParameters {
 			return new String(Base64.encodeBase64(FileUtils
 					.readFileToByteArray(thisFile)));
 		} catch (IOException e) {
-			System.err.printf("Erro ao abrir o user-data.txt. Erro msg: %s",
-					e.getMessage());
+			System.err.printf("Error opening file %s. Error msg: %s",
+					thisURL.getFile(), e.getMessage());
 			System.exit(1);
 		}
 		return StringUtils.EMPTY;
 	}
 
 	protected void validateParameters() {
-		if (StringUtils.isBlank(this.getAccessKey())) {
-			System.err
-					.println("Você deve fornecer a sua accessKey de acesso a AWS na variável de ambiente \"aws.accessKey\".");
-			System.exit(1);
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+
+		Validator validator = factory.getValidator();
+
+		Set<ConstraintViolation<AbstractParameters>> violations = validator
+				.validate(this);
+
+		for (ConstraintViolation<AbstractParameters> violation : violations) {
+			System.err.println(String.format("%s %s", violation
+					.getPropertyPath().toString(), violation.getMessage()));
 		}
-		if (StringUtils.isBlank(this.getSecretKey())) {
-			System.err
-					.println("Você deve fornecer a sua secretKey de acesso a AWS na variável de ambiente \"aws.secretKey\".");
+
+		if (!violations.isEmpty()) {
 			System.exit(1);
 		}
 	}
@@ -80,7 +89,7 @@ public abstract class AbstractParameters {
 			System.out.println(xstream.toXML(this));
 			FileUtils.writeStringToFile(thisFile, xstream.toXML(this));
 		} catch (IOException e) {
-			System.err.printf("Erro ao carregar o arquivo: %s. Erro msg: %s",
+			System.err.printf("Error opening file: %s. Error msg: %s",
 					thisURL.getFile(), e.getMessage());
 			System.exit(1);
 		}
@@ -118,14 +127,6 @@ public abstract class AbstractParameters {
 
 	public void setAmi(String ami) {
 		this.ami = ami;
-	}
-
-	public String getQty() {
-		return qty;
-	}
-
-	public void setQty(String qty) {
-		this.qty = qty;
 	}
 
 	public String getElbName() {

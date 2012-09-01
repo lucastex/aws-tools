@@ -1,29 +1,53 @@
 package blanq.parameters;
 
+import javax.validation.constraints.Min;
+
+import org.hibernate.validator.constraints.NotBlank;
+
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 
 public class AutoScalingParameters extends AbstractParameters {
 	private static AutoScalingParameters instance;
+
 	private AmazonAutoScalingClient autoScaling;
 	private AmazonCloudWatchClient cloudWatch;
+
+	@NotBlank
 	private String policyName;
+	@NotBlank
 	private String autoScalingGroupName;
+	@NotBlank
 	private String launchConfigurationName;
+	@NotBlank
 	private String autoScalingEndpoint;
+	@NotBlank
 	private String cloudWatchEndpoint;
-	private int autoScalingGroupMin; /* = 2; */
-	private int autoScalingGroupMax; /* = 4; */
-	private int autoScalingGroupCoolDown; /* = 600; */
+	@Min(0)
+	private int autoScalingGroupMin;
+	@Min(0)
+	private int autoScalingGroupMax;
+	@Min(0)
+	private int autoScalingGroupCoolDown;
+	@Min(0)
 	private int policyScalingAdjustment;
+	@NotBlank
 	private String policyAdjustmentType;
+	@NotBlank
 	private String alarmMetricName;
+	@NotBlank
 	private String alarmNamespace;
+	@NotBlank
 	private String alarmStatistic;
+	@Min(0)
 	private int alarmPeriod;
+	@Min(0)
 	private int alarmEvaluationPeriods;
+	@Min(0)
 	private double alarmThreshold;
+	@NotBlank
 	private String alarmComparisonOperator;
+	@NotBlank
 	private String alarmGroupDimesionName;
 
 	private AutoScalingParameters() {
@@ -35,11 +59,6 @@ public class AutoScalingParameters extends AbstractParameters {
 			instance.validateParameters();
 		}
 		return instance;
-	}
-
-	protected void validateParameters() {
-		super.validateParameters();
-		//TODO Should validate other fields such as AMI, Zones, Security Groups etc
 	}
 
 	public AmazonAutoScalingClient getAmazonAutoScalingClient() {

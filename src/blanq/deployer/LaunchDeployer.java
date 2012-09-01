@@ -1,4 +1,4 @@
-package blanq;
+package blanq.deployer;
 
 import blanq.parameters.DeployParameters;
 

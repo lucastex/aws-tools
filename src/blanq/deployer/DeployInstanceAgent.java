@@ -1,10 +1,12 @@
-package blanq;
+package blanq.deployer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import blanq.util.Util;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
@@ -104,10 +106,10 @@ public class DeployInstanceAgent implements Runnable {
 				List<Instance> instances = reservation.getInstances();
 				for (Instance instance : instances) {
 				
-					//encontrou a instancia solicitada
+					// encontrou a instancia solicitada
 					if (instance.getInstanceId() == instanceId) {
 					
-						//certifica que est‡ rodando
+						// certifica que est‡ rodando
 						if (instance.getState().getCode() == 16) {
 							System.out.println("Instance "+instanceId+" is running.");
 							break;
@@ -116,7 +118,7 @@ public class DeployInstanceAgent implements Runnable {
 				}
 			}
 		
-			//aguarda 2 segundos para voltar a checar novamente
+			// aguarda 2 segundos para voltar a checar novamente
 			Util.sleepFor(2);
 			
 			return true;

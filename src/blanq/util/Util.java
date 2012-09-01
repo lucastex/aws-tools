@@ -1,4 +1,4 @@
-package blanq;
+package blanq.util;
 
 import org.apache.commons.logging.LogFactory;
 
@@ -17,5 +17,4 @@ public class Util {
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",
 				"org.apache.commons.logging.impl.NoOpLog");
 	}
-
 }

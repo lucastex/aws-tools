@@ -1,7 +1,5 @@
 .DS_Store
-DeployParameters.json
 DeployParameters.xml
-AutoScalingParameters.json
 AutoScalingParameters.xml
 user-data.txt
 target/
