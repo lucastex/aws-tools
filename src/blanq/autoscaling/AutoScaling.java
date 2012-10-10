@@ -79,7 +79,7 @@ public class AutoScaling {
 		}
 	}
 
-	private void deleteLaunchConfiguration() {
+	public void deleteLaunchConfiguration() {
 		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 		try {
@@ -94,11 +94,34 @@ public class AutoScaling {
 		}
 	}
 
+	/**
+	 * Creates a launch configuration.
+	 * 
+	 * A Launch Configuration is the parameters necessary to launch new Amazon EC2 instances.
+	 * 
+	 * http://aws.amazon.com/autoscaling/
+	 * 
+	 * Auto Scaling Command Line Tool
+	 * http://aws.amazon.com/developertools/2535
+	 * 
+	 * as-create-launch-config my_autoscale_config --image-id ami-XXXXXXXX 
+	 * --instance-type m1.small 
+	 * --group "My Security Group Name" 
+	 * --key my_key
+	 * --user-data "my user data"
+	 * 
+	 * @param launchConfigurationName
+	 * @param imageId
+	 * @param instanceType
+	 * @param securityGroups
+	 * @param keyParName
+	 * @param userData
+	 */
 	private void createLaunchConfiguration() {
 		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 
-		// as-create-launch-config my_autoscale_config --image-id ami-XXXXXXXX --instance-type m1.small --group "My Security Group Name"
+		// as-create-launch-config my_autoscale_config --image-id ami-XXXXXXXX --instance-type m1.small --group "My Security Group Name --key my_key"
 		CreateLaunchConfigurationRequest launchConfigurationRequest = new CreateLaunchConfigurationRequest();
 
 		// configuration name
@@ -252,6 +275,11 @@ public class AutoScaling {
 		cloudWatch.putMetricAlarm(putMetricAlarmRequest);
 	}
 
+	public void createLaunchConfig() {
+		createLaunchConfiguration();
+		createAutoScalingGroup();
+	}
+	
 	public void scale() {
 		createLaunchConfiguration();
 		createAutoScalingGroup();

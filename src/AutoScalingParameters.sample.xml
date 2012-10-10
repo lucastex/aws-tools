@@ -1,33 +1,43 @@
 <AutoScalingParameters>
-  <policyName>ScaleUp</policyName>
-  <autoScalingGroupName>AppServerGroup</autoScalingGroupName>
+
+  <autoScalingGroupName>AppServerGroupName</autoScalingGroupName>
   <launchConfigurationName>LaunchConfigurationName</launchConfigurationName>
-  <!--
-  <autoScalingEndpoint>autoscaling.sa-east-1.amazonaws.com</autoScalingEndpoint>
-  <cloudWatchEndpoint>monitoring.sa-east-1.amazonaws.com</cloudWatchEndpoint>
-  <elbEndpoint>elasticloadbalancing.sa-east-1.amazonaws.com</elbEndpoint>
-  -->
-  <autoScalingGroupMin>2</autoScalingGroupMin>
-  <autoScalingGroupMax>4</autoScalingGroupMax>
-  <autoScalingGroupCoolDown>600</autoScalingGroupCoolDown>
+
+  <autoScalingEndpoint>autoscaling.us-east-1.amazonaws.com</autoScalingEndpoint>
+  <cloudWatchEndpoint>monitoring.us-east-1.amazonaws.com</cloudWatchEndpoint>
+
+  <autoScalingGroupMin>1</autoScalingGroupMin>
+  <autoScalingGroupMax>5</autoScalingGroupMax>
+  <!--  The amount of time, in seconds, after a scaling activity completes before any further trigger-related scaling activities can start. -->
+  <autoScalingGroupCoolDown>60</autoScalingGroupCoolDown>
+  
+  <policyName>ScaleUp</policyName>
   <policyScalingAdjustment>1</policyScalingAdjustment>
+  <!-- A policy adjustment type. Valid values are ChangeInCapacity, ExactCapacity, and PercentChangeInCapacity. -->
   <policyAdjustmentType>ChangeInCapacity</policyAdjustmentType>
-  <alarmMetricName>ELBLowLatency</alarmMetricName>
+  
+  <alarmMetricName>Latency</alarmMetricName>
   <alarmNamespace>AWS/ELB</alarmNamespace>
   <alarmStatistic>Average</alarmStatistic>
   <alarmPeriod>300</alarmPeriod>
   <alarmEvaluationPeriods>1</alarmEvaluationPeriods>
-  <alarmThreshold>4.0</alarmThreshold>
+  <alarmThreshold>1.0</alarmThreshold>
   <alarmComparisonOperator>GreaterThanOrEqualToThreshold</alarmComparisonOperator>
   <alarmGroupDimesionName>AutoScalingGroupName</alarmGroupDimesionName>
+  
   <accessKey>AccessKey</accessKey>
   <secretKey>SecretKey</secretKey>
-  <elbName>ElbName</elbName>
-  <keyPair>KeyPair</keyPair>
-  <appName>AppName</appName>
-  <ami>ami-11538d7e</ami>
+  
+  <appName>MyAwesomeAppName</appName>
   <appVersion>1</appVersion>
-  <instanceType>c1.medium</instanceType>
-  <securityGroup>SecurityGroup</securityGroup>
-  <availabilityZone>sa-east-1b</availabilityZone>
+  
+  <keyPair>KeyPairName</keyPair>
+  <securityGroup>KeyPairName</securityGroup>
+  
+  <elbName>ElbName</elbName>
+  
+  <ami>ami-xxxxxxxx</ami>
+  <instanceType>t1.micro</instanceType>
+  <availabilityZone>us-east-1a</availabilityZone>
+  
 </AutoScalingParameters>
