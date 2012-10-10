@@ -19,6 +19,15 @@ import com.amazonaws.services.cloudwatch.model.DeleteAlarmsRequest;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.PutMetricAlarmRequest;
 
+/**
+ * This class is a Java implementation similar to the features available at Auto Scaling Command Line Tool. 
+ * 
+ * Auto Scaling Command Line Tool
+ * http://aws.amazon.com/developertools/2535
+ *
+ * AWS Auto Scaling
+ * http://aws.amazon.com/autoscaling/
+ */
 public class AutoScaling {
 
 	private AutoScalingParameters autoScalingParameters;
@@ -99,11 +108,6 @@ public class AutoScaling {
 	 * 
 	 * A Launch Configuration is the parameters necessary to launch new Amazon EC2 instances.
 	 * 
-	 * http://aws.amazon.com/autoscaling/
-	 * 
-	 * Auto Scaling Command Line Tool
-	 * http://aws.amazon.com/developertools/2535
-	 * 
 	 * as-create-launch-config my_autoscale_config --image-id ami-XXXXXXXX 
 	 * --instance-type m1.small 
 	 * --group "My Security Group Name" 
@@ -112,7 +116,7 @@ public class AutoScaling {
 	 * 
 	 * @param launchConfigurationName
 	 * @param imageId
-	 * @param instanceType
+	 * @param instanceType available types micro, small, medium, large, extra large
 	 * @param securityGroups
 	 * @param keyParName
 	 * @param userData
@@ -152,11 +156,32 @@ public class AutoScaling {
 		autoScaling.createLaunchConfiguration(launchConfigurationRequest);
 	}
 
+	/**
+	 * Creates a auto scaling group.
+	 * 
+	 * The group consists of pool of instances, where you can specify minimum and maximum size of the pool.
+	 * 
+	 * as-create-auto-scaling-group my_autoscale_group 
+	 * --launch-configuration my_autoscale_config
+	 * --availability-zones us-east-1X  
+	 * --min-size 1 
+	 * --max-size 3 
+	 * --cooldown 300
+	 * --load-balancers my_load_balancer_name 
+	 * 
+	 * @param setAutoScalingGroupName
+	 * @param setLaunchConfigurationName
+	 * @param setAvailabilityZones zones to be deployed
+	 * @param setMinSize minimum number of running instances
+	 * @param setMaxSize maximum number of running instances
+	 * @param setDefaultCooldown amount of time, in seconds, after a scaling activity completes before any further trigger-related scaling activities can start
+	 * @param setLoadBalancerNames load balance to be used
+	 */
 	private void createAutoScalingGroup() {
 		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 
-		// as-create-auto-scaling-group my_autoscale_group --availability-zones us-east-1X --launch-configuration my_autoscale_config --min-size 1 --max-size 3 --load-balancers my_load_balancer_name --health-check-type ELB --grace-period 300
+		// as-create-auto-scaling-group my_autoscale_group --launch-configuration my_autoscale_config --availability-zones us-east-1X  --min-size 1 --max-size 3 --cooldown 300 --load-balancers my_load_balancer_name 
 		CreateAutoScalingGroupRequest autoScalingGroupRequest = new CreateAutoScalingGroupRequest();
 
 		// group name
@@ -167,7 +192,7 @@ public class AutoScaling {
 				.setLaunchConfigurationName(autoScalingParameters
 						.getLaunchConfigurationName());
 
-		// zone to be deployed
+		// zones to be deployed
 		Collection<String> availabilityZones = Arrays
 				.asList(new String[] { autoScalingParameters
 						.getAvailabilityZone() });
@@ -185,7 +210,7 @@ public class AutoScaling {
 		autoScalingGroupRequest.setDefaultCooldown(autoScalingParameters
 				.getAutoScalingGroupCoolDown());
 
-		// loadbalance to be used
+		// load balance to be used
 		Collection<String> loadBalancerNames = Arrays
 				.asList(new String[] { autoScalingParameters.getElbName() });
 		autoScalingGroupRequest.setLoadBalancerNames(loadBalancerNames);
@@ -271,7 +296,7 @@ public class AutoScaling {
 		"key1=value1,key2=value2..." ] [--ok-actions  value[,value...] ] [--unit 
 		value ] [--insufficient-data-actions  value[,value...] ]  [General Options]
 		*/
-		
+
 		cloudWatch.putMetricAlarm(putMetricAlarmRequest);
 	}
 
@@ -279,7 +304,7 @@ public class AutoScaling {
 		createLaunchConfiguration();
 		createAutoScalingGroup();
 	}
-	
+
 	public void scale() {
 		createLaunchConfiguration();
 		createAutoScalingGroup();
