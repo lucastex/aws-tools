@@ -222,7 +222,7 @@ public class AutoScaling {
 		AmazonAutoScalingClient autoScaling = autoScalingParameters
 				.getAmazonAutoScalingClient();
 
-		// as-put-scaling-policy ScaleUp --auto-scaling-group my_autoscale_group --adjustment=1 --type ChangeInCapacity
+		// as-put-scaling-policy ScaleUp --auto-scaling-group my_autoscale_group --adjustment=1 --type ChangeInCapacity --cooldown 300
 		PutScalingPolicyRequest putScalingPolicyRequest = new PutScalingPolicyRequest();
 
 		putScalingPolicyRequest.setPolicyName(autoScalingParameters
